@@ -32,7 +32,6 @@ import com.owncloud.android.lib.common.http.HttpConstants
 import com.owncloud.android.lib.common.http.methods.HttpBaseMethod
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
-import okhttp3.OkHttpClient
 import okhttp3.Protocol
 import okhttp3.Response
 import okhttp3.ResponseBody.Companion.toResponseBody
@@ -45,26 +44,28 @@ import java.util.concurrent.TimeUnit
  *
  * @author David González Verdugo
  */
-abstract class DavMethod protected constructor(url: URL) : HttpBaseMethod(url) {
-    override lateinit var response: Response
-    private var davResource : DavOCResource? = null
+abstract class DavMethod protected constructor(httpClient: HttpClient, url: URL) : HttpBaseMethod(httpClient, url) {
+    protected var davResource: DavOCResource
 
-    override fun abort() {
-        davResource?.cancelCall()
+    override lateinit var response: Response
+
+    init {
+        val httpUrl = url.toHttpUrlOrNull() ?: throw MalformedURLException()
+        davResource = DavOCResource(
+            okHttpClient,
+            httpUrl,
+            log
+        )
     }
 
-    protected abstract fun onDavExecute(davResource : DavOCResource) : Int
+    override fun abort() {
+        davResource.cancelCall()
+    }
 
     @Throws(Exception::class)
-    override fun onExecute(okHttpClient: OkHttpClient): Int {
+    override fun execute(): Int {
         return try {
-             davResource = DavOCResource(
-                okHttpClient.newBuilder().followRedirects(false).build(),
-                httpUrl,
-                log
-            )
-
-            onDavExecute(davResource!!)
+            onExecute()
         } catch (httpException: HttpException) {
             // Modify responses with information gathered from exceptions
             if (httpException is RedirectException) {
@@ -92,11 +93,70 @@ abstract class DavMethod protected constructor(url: URL) : HttpBaseMethod(url) {
     }
 
     //////////////////////////////
+    //         Setter
+    //////////////////////////////
+    // Connection parameters
+    override fun setReadTimeout(readTimeout: Long, timeUnit: TimeUnit) {
+        super.setReadTimeout(readTimeout, timeUnit)
+        davResource = DavOCResource(
+            okHttpClient,
+            request.url,
+            log
+        )
+    }
+
+    override fun setConnectionTimeout(
+        connectionTimeout: Long,
+        timeUnit: TimeUnit
+    ) {
+        super.setConnectionTimeout(connectionTimeout, timeUnit)
+        davResource = DavOCResource(
+            okHttpClient,
+            request.url,
+            log
+        )
+    }
+
+    override fun setFollowRedirects(followRedirects: Boolean) {
+        super.setFollowRedirects(followRedirects)
+        davResource = DavOCResource(
+            okHttpClient,
+            request.url,
+            log
+        )
+    }
+
+    override fun setUrl(url: HttpUrl) {
+        super.setUrl(url)
+        davResource = DavOCResource(
+            okHttpClient,
+            request.url,
+            log
+        )
+    }
+
+    override fun setRequestHeader(name: String, value: String) {
+        super.setRequestHeader(name, value)
+        davResource = DavOCResource(
+            okHttpClient,
+            request.url,
+            log
+        )
+    }
+
+    //////////////////////////////
     //         Getter
     //////////////////////////////
-
+    override fun setRetryOnConnectionFailure(retryOnConnectionFailure: Boolean) {
+        super.setRetryOnConnectionFailure(retryOnConnectionFailure)
+        davResource = DavOCResource(
+            okHttpClient,
+            request.url,
+            log
+        )
+    }
 
     override val isAborted: Boolean
-        get() = davResource?.isCallAborted() ?: false
+        get() = davResource.isCallAborted()
 
 }

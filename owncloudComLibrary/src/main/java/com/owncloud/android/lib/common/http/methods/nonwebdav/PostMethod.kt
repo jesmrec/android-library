@@ -24,7 +24,6 @@
 package com.owncloud.android.lib.common.http.methods.nonwebdav
 
 import com.owncloud.android.lib.common.http.HttpClient
-import okhttp3.OkHttpClient
 import okhttp3.RequestBody
 import java.io.IOException
 import java.net.URL
@@ -35,14 +34,15 @@ import java.net.URL
  * @author David González Verdugo
  */
 class PostMethod(
+    httpClient: HttpClient,
     url: URL,
     private val postRequestBody: RequestBody
-) : HttpMethod(url) {
+) : HttpMethod(httpClient, url) {
     @Throws(IOException::class)
-    override fun onExecute(okHttpClient: OkHttpClient): Int {
+    override fun onExecute(): Int {
         request = request.newBuilder()
             .post(postRequestBody)
             .build()
-        return super.onExecute(okHttpClient)
+        return super.onExecute()
     }
 }

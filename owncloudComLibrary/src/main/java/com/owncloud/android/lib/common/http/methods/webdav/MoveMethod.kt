@@ -23,9 +23,7 @@
  */
 package com.owncloud.android.lib.common.http.methods.webdav
 
-import at.bitfire.dav4jvm.DavOCResource
 import com.owncloud.android.lib.common.http.HttpClient
-import okhttp3.OkHttpClient
 import okhttp3.Response
 import java.net.URL
 
@@ -36,12 +34,13 @@ import java.net.URL
  * @author David González Verdugo
  */
 class MoveMethod(
+    httpClient: HttpClient,
     url: URL,
     private val destinationUrl: String,
     private val forceOverride: Boolean
-) : DavMethod(url) {
+) : DavMethod(httpClient, url) {
     @Throws(Exception::class)
-    override fun onDavExecute(davResource: DavOCResource): Int {
+    public override fun onExecute(): Int {
         davResource.move(
             destinationUrl,
             forceOverride,

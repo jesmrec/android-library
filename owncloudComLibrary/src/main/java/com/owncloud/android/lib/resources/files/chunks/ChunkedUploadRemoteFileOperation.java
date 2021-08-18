@@ -92,7 +92,7 @@ public class ChunkedUploadRemoteFileOperation extends UploadRemoteFileOperation 
                 result = new RemoteOperationResult<>(new OperationCancelledException());
                 break;
             } else {
-                mPutMethod = new PutMethod(
+                mPutMethod = new PutMethod(client,
                         new URL(uriPrefix + File.separator + chunkIndex), mFileRequestBody);
 
                 if (chunkIndex == chunkCount - 1) {

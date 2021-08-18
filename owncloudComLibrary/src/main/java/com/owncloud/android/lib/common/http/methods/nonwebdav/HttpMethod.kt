@@ -23,8 +23,8 @@
  */
 package com.owncloud.android.lib.common.http.methods.nonwebdav
 
+import com.owncloud.android.lib.common.http.HttpClient
 import com.owncloud.android.lib.common.http.methods.HttpBaseMethod
-import okhttp3.OkHttpClient
 import okhttp3.Response
 import java.net.URL
 
@@ -34,12 +34,13 @@ import java.net.URL
  * @author David González Verdugo
  */
 abstract class HttpMethod(
+    httpClient: HttpClient,
     url: URL
-) : HttpBaseMethod( url) {
+) : HttpBaseMethod(httpClient, url) {
 
     override lateinit var response: Response
 
-    public override fun onExecute(okHttpClient : OkHttpClient): Int {
+    public override fun onExecute(): Int {
         call = okHttpClient.newCall(request)
         call?.let { response = it.execute() }
         return super.statusCode

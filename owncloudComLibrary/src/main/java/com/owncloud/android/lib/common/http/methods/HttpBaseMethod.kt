@@ -13,42 +13,24 @@ import java.net.MalformedURLException
 import java.net.URL
 import java.util.concurrent.TimeUnit
 
-abstract class HttpBaseMethod constructor(url: URL) {
+abstract class HttpBaseMethod constructor(clientWrapper: HttpClient, url: URL) {
+    var okHttpClient: OkHttpClient
     var httpUrl: HttpUrl = url.toHttpUrlOrNull() ?: throw MalformedURLException()
     var request: Request
     abstract var response: Response
 
-    var followRedirects:Boolean? = true
-    var retryOnConnectionFailure:Boolean? = false
-    var connectionTimeoutVal:Long? = 10L
-    var connectionTimeoutUnit:TimeUnit? = null
-    var readTimeoutVal:Long? = null
-    var readTimeoutUnit:TimeUnit? = null
-
-
     var call: Call? = null
 
-
     init {
+        okHttpClient = clientWrapper.okHttpClient
         request = Request.Builder()
             .url(httpUrl)
             .build()
     }
 
     @Throws(Exception::class)
-    open fun execute(httpClient: HttpClient): Int {
-        val okHttpClient = httpClient.okHttpClient.newBuilder().apply {
-            retryOnConnectionFailure?.let{ retryOnConnectionFailure(it) }
-            followRedirects?.let { followRedirects(it) }
-            readTimeoutUnit?.let { unit ->
-                readTimeoutVal?.let {readTimeout(it, unit) }
-            }
-            connectionTimeoutUnit?.let { unit ->
-               connectionTimeoutVal?.let{ connectTimeout(it, unit) }
-            }
-        }.build()
-
-        return onExecute(okHttpClient)
+    open fun execute(): Int {
+        return onExecute()
     }
 
     open fun setUrl(url: HttpUrl) {
@@ -125,32 +107,32 @@ abstract class HttpBaseMethod constructor(url: URL) {
     //         Setter
     //////////////////////////////
     // Connection parameters
-    /*
     open fun setRetryOnConnectionFailure(retryOnConnectionFailure: Boolean) {
-        retryOnConnectionFailureVal = true
+        okHttpClient = okHttpClient.newBuilder()
+            .retryOnConnectionFailure(retryOnConnectionFailure)
+            .build()
     }
 
-     */
-
     open fun setReadTimeout(readTimeout: Long, timeUnit: TimeUnit) {
-        readTimeoutVal = readTimeout
-        readTimeoutUnit = timeUnit
+        okHttpClient = okHttpClient.newBuilder()
+            .readTimeout(readTimeout, timeUnit)
+            .build()
     }
 
     open fun setConnectionTimeout(
         connectionTimeout: Long,
         timeUnit: TimeUnit
     ) {
-        connectionTimeoutVal = connectionTimeout
-        connectionTimeoutUnit = timeUnit
+        okHttpClient = okHttpClient.newBuilder()
+            .readTimeout(connectionTimeout, timeUnit)
+            .build()
     }
 
-   /*
     open fun setFollowRedirects(followRedirects: Boolean) {
-        followRedirectsVal = followRedirects
+        okHttpClient = okHttpClient.newBuilder()
+            .followRedirects(followRedirects)
+            .build()
     }
-
-    */
 
     /************
      *** Call ***
@@ -166,5 +148,5 @@ abstract class HttpBaseMethod constructor(url: URL) {
     //         For override
     //////////////////////////////
     @Throws(Exception::class)
-    protected abstract fun onExecute(okHttpClient: OkHttpClient): Int
+    protected abstract fun onExecute(): Int
 }

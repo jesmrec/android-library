@@ -113,7 +113,6 @@ public class OwnCloudClient extends HttpClient {
             if (mCredentials.getHeaderAuth() != null && method.getRequestHeader(AUTHORIZATION_HEADER) == null) {
                 method.setRequestHeader(AUTHORIZATION_HEADER, mCredentials.getHeaderAuth());
             }
-            Log.d("+++++++++++++", "BEFORE");
             synchronized (mHoldRequests) {
                 while (mHoldRequests) {
                     while (true) {
@@ -210,7 +209,7 @@ public class OwnCloudClient extends HttpClient {
 
                 redirectionPath.addLocation(location);
 
-                // Release the connection to avoid reach the max number of connections per host
+                // Release the connection to avoid reach the max number of connections per hostClientManager
                 // due to it will be set a different url
                 exhaustResponse(method.getResponseBodyAsStream());
 

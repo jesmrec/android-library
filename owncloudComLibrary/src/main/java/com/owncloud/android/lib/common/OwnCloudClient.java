@@ -164,6 +164,7 @@ public class OwnCloudClient extends HttpClient {
                     "\nobject: " + this.toString() +
                     "\nMethod: " + method.toString() +
                     "\nUrl: " + method.getHttpUrl() +
+                    "\nCookeis: " + getCookiesString() +
                     "\ntrace: " + ExceptionUtils.getStackTrace(e) +
                     "---------------------------");
         }

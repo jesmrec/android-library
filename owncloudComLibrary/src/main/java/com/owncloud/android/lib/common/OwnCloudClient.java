@@ -127,7 +127,7 @@ public class OwnCloudClient extends HttpClient {
             method.setRequestHeader(HttpConstants.OC_X_REQUEST_ID, requestId);
             method.setRequestHeader(HttpConstants.USER_AGENT_HEADER, SingleSessionManager.getUserAgent());
             method.setRequestHeader(HttpConstants.ACCEPT_ENCODING_HEADER, HttpConstants.ACCEPT_ENCODING_IDENTITY);
-            if (mCredentials.getHeaderAuth() != null && method.getRequestHeader(AUTHORIZATION_HEADER) == null) {
+            if (mCredentials.getHeaderAuth() != null && !mCredentials.getHeaderAuth().isEmpty()) {
                 method.setRequestHeader(AUTHORIZATION_HEADER, mCredentials.getHeaderAuth());
             }
 
@@ -167,6 +167,11 @@ public class OwnCloudClient extends HttpClient {
                     "\nUrl: " + method.getHttpUrl() +
                     "\nCookeis: " + getCookiesForBaseUri().toString() +
                     "\nCredentials type: " + mCredentials.getClass().toString() +
+                    "\ntoken: " + mCredentials.getAuthToken() +
+
+                    "\nHeaders: ++++" +
+                    "\n" + method.getRequest().headers().toString() +
+                    "+++++++++++++" +
                     "\ntrace: " + ExceptionUtils.getStackTrace(e) +
                     "---------------------------");
         }

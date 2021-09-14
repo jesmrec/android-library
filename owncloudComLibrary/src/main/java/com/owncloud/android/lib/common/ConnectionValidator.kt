@@ -62,7 +62,6 @@ class ConnectionValidator (
                     }
                 }
                 if (successCounter >= failCounter) {
-                    baseClient.account = client.account
                     baseClient.credentials = client.credentials
                     baseClient.cookiesForBaseUri = client.cookiesForBaseUri
                     return true
@@ -150,8 +149,10 @@ class ConnectionValidator (
         val credentials = account.credentials
         if (shouldInvalidateAccountCredentials(credentials, account, status)) {
             invalidateAccountCredentials(account, credentials)
+
             if (credentials.authTokenCanBeRefreshed()) {
                 try {
+                    // This command does the actual refresh
                     account.loadCredentials(context)
                     // if mAccount.getCredentials().length() == 0 --> refresh failed
                     client.credentials = account.credentials

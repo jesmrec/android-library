@@ -100,6 +100,11 @@ abstract class HttpBaseMethod constructor(url: URL) {
         return response.body?.byteStream()
     }
 
+    /**
+     * returns the final url after following the last redirect.
+     */
+    open fun getFinalUrl() = response.request.url
+
     /*************************
      *** Connection Params ***
      *************************/

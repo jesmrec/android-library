@@ -83,6 +83,7 @@ internal class StatusRequester {
         var status: Int
 
         val getMethod = getGetMethod(currentLocation)
+        getMethod.setFollPermanentRedirects(true)
         status = client.executeHttpMethod(getMethod)
         return RequestResult(getMethod, status, redirectedToUnsecureLocation, currentLocation)
     }

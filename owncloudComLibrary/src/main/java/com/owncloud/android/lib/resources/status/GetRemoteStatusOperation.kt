@@ -51,12 +51,18 @@ class GetRemoteStatusOperation : RemoteOperation<RemoteServerInfo>() {
         return tryToConnect(client)
     }
 
+    private fun updateClientBaseUrl(client:OwnCloudClient, newBaseUrl:String) {
+        client.baseUri = Uri.parse(newBaseUrl)
+    }
+
     private fun tryToConnect(client: OwnCloudClient): RemoteOperationResult<RemoteServerInfo> {
         val baseUrl = client.baseUri.toString()
         return try {
             val requester = StatusRequester()
             val requestResult = requester.request(baseUrl, client)
-            requester.handleRequestResult(requestResult, baseUrl)
+            val result = requester.handleRequestResult(requestResult, baseUrl)
+            updateClientBaseUrl(client, result.data.baseUrl)
+            return result
         } catch (e: JSONException) {
             RemoteOperationResult(ResultCode.INSTANCE_NOT_CONFIGURED)
         } catch (e: Exception) {

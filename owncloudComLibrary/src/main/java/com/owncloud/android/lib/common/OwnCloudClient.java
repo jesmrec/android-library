@@ -27,7 +27,6 @@ package com.owncloud.android.lib.common;
 
 import android.net.Uri;
 
-import at.bitfire.dav4jvm.exception.HttpException;
 import com.owncloud.android.lib.common.accounts.AccountUtils;
 import com.owncloud.android.lib.common.authentication.OwnCloudCredentials;
 import com.owncloud.android.lib.common.authentication.OwnCloudCredentialsFactory;
@@ -35,12 +34,10 @@ import com.owncloud.android.lib.common.authentication.OwnCloudCredentialsFactory
 import com.owncloud.android.lib.common.http.HttpClient;
 import com.owncloud.android.lib.common.http.HttpConstants;
 import com.owncloud.android.lib.common.http.methods.HttpBaseMethod;
-import com.owncloud.android.lib.common.network.RedirectionPath;
 import com.owncloud.android.lib.common.utils.RandomUtils;
 import com.owncloud.android.lib.resources.status.OwnCloudVersion;
 import okhttp3.Cookie;
 import okhttp3.HttpUrl;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import timber.log.Timber;
 
 import java.io.IOException;
@@ -49,7 +46,6 @@ import java.util.List;
 
 import static com.owncloud.android.lib.common.http.HttpConstants.AUTHORIZATION_HEADER;
 import static com.owncloud.android.lib.common.http.HttpConstants.HTTP_MOVED_PERMANENTLY;
-import static com.owncloud.android.lib.common.http.HttpConstants.OC_X_REQUEST_ID;
 
 public class OwnCloudClient extends HttpClient {
 
@@ -103,7 +99,7 @@ public class OwnCloudClient extends HttpClient {
     }
 
     public int executeHttpMethod(HttpBaseMethod method) throws Exception {
-        if(mSynchronizeRequests) {
+        if (mSynchronizeRequests) {
             synchronized (mRequestMutex) {
                 return saveExecuteHttpMethod(method);
             }
@@ -116,7 +112,7 @@ public class OwnCloudClient extends HttpClient {
         int repeatCounter = 0;
         int status;
 
-        if(mFollowRedirects) {
+        if (mFollowRedirects) {
             method.setFollowRedirects(true);
         }
 
@@ -144,7 +140,7 @@ public class OwnCloudClient extends HttpClient {
                             (!(mCredentials instanceof OwnCloudAnonymousCredentials) &&
                                     status == HttpConstants.HTTP_UNAUTHORIZED))) {
                 retry = mConnectionValidator.validate(this, mSingleSessionManager); // retry on success fail on no success
-            } else if(method.getFollowPermanentRedirects() && status == HTTP_MOVED_PERMANENTLY) {
+            } else if (method.getFollowPermanentRedirects() && status == HTTP_MOVED_PERMANENTLY) {
                 retry = true;
                 method.setFollowRedirects(true);
             }

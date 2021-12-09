@@ -45,13 +45,13 @@ import timber.log.Timber
 class GetRemoteStatusOperation : RemoteOperation<RemoteServerInfo>() {
 
     public override fun run(client: OwnCloudClient): RemoteOperationResult<RemoteServerInfo> {
-        if(!usesHttpOrHttps(client.baseUri)) {
+        if (!usesHttpOrHttps(client.baseUri)) {
             client.baseUri = buildFullHttpsUrl(client.baseUri)
         }
         return tryToConnect(client)
     }
 
-    private fun updateClientBaseUrl(client:OwnCloudClient, newBaseUrl:String) {
+    private fun updateClientBaseUrl(client: OwnCloudClient, newBaseUrl: String) {
         client.baseUri = Uri.parse(newBaseUrl)
     }
 

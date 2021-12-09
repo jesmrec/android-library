@@ -148,7 +148,6 @@ abstract class HttpBaseMethod constructor(url: URL) {
 
     open fun getFollowPermanentRedirects() = _followPermanentRedirects
 
-
     /************
      *** Call ***
      ************/

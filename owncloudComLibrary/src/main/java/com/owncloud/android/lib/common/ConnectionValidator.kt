@@ -13,19 +13,18 @@ import com.owncloud.android.lib.resources.status.RemoteServerInfo
 import org.apache.commons.lang3.exception.ExceptionUtils
 import timber.log.Timber
 import java.io.IOException
-import java.lang.Exception
 
-class ConnectionValidator (
+class ConnectionValidator(
     val context: Context,
-    val clearCookiesOnValidation: Boolean
-){
+    private val clearCookiesOnValidation: Boolean
+) {
 
     fun validate(baseClient: OwnCloudClient, singleSessionManager: SingleSessionManager): Boolean {
         try {
             var validationRetryCount = 0
             val client = OwnCloudClient(baseClient.baseUri, null, false, singleSessionManager)
             if (clearCookiesOnValidation) {
-                client.clearCookies();
+                client.clearCookies()
             } else {
                 client.cookiesForBaseUri = baseClient.cookiesForBaseUri
             }
@@ -33,11 +32,11 @@ class ConnectionValidator (
             client.account = baseClient.account
             client.credentials = baseClient.credentials
             while (validationRetryCount < VALIDATION_RETRY_COUNT) {
-                Timber.d("validationRetryCout %d", validationRetryCount)
+                Timber.d("validationRetryCount %d", validationRetryCount)
                 var successCounter = 0
                 var failCounter = 0
 
-                client.setFollowRedirects(true)
+                client.followRedirects = true
                 if (isOnwCloudStatusOk(client)) {
                     successCounter++
                 } else {
@@ -45,8 +44,8 @@ class ConnectionValidator (
                 }
 
                 // Skip the part where we try to check if we can access the parts where we have to be logged in... if we are not logged in
-                if(baseClient.credentials !is OwnCloudAnonymousCredentials) {
-                    client.setFollowRedirects(false)
+                if (baseClient.credentials !is OwnCloudAnonymousCredentials) {
+                    client.followRedirects = false
                     val contentReply = canAccessRootFolder(client)
                     if (contentReply.httpCode == HttpConstants.HTTP_OK) {
                         if (contentReply.data == true) { //if data is true it means that the content reply was ok
@@ -139,8 +138,6 @@ class ConnectionValidator (
      *
      * Refresh current credentials if possible, and marks a retry.
      *
-     * @param status
-     * @param repeatCounter
      * @return
      */
     private fun checkUnauthorizedAccess(client: OwnCloudClient, singleSessionManager: SingleSessionManager, status: Int): Boolean {
@@ -182,6 +179,6 @@ class ConnectionValidator (
     }
 
     companion object {
-        val VALIDATION_RETRY_COUNT = 3
+        const val VALIDATION_RETRY_COUNT = 3
     }
 }
